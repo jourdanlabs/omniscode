@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "product": "OMNIS KEY Local Integrity V1",
+  "releaseVehicle": "https://github.com/jourdanlabs/omniscode",
+  "upstream": {
+    "name": "jcode",
+    "repository": "https://github.com/1jehuang/jcode",
+    "commit": "a3a24cdb3aee97ebb43fe84e79bfa63828f3a39a",
+    "tree": "8e8aed923862573d6aa04e181e00acb7e86a20b1",
+    "committedAt": "2026-07-28T03:53:40-07:00",
+    "licenseFile": "LICENSE",
+    "licenseSha256": "720443eee2efeda8f9f93a7a6a6f62763c17171106f60df58a35b8ea638fdf60"
+  },
+  "frozenImplementationBase": {
+    "commit": "adea0588877f490e7304a33197fd520f92355489",
+    "tree": "2844f16b76d6b0544f7c0f81f2c581f231519e8f"
+  },
+  "implementationStartingPoint": {
+    "commit": "670955adf1eebb207bc4a4411e5f6083562d167c",
+    "tree": "c53566ec0c0cabd4c380e6b5831f27674a042ddd"
+  },
+  "releaseSpecification": {
+    "path": "docs/OPEN_SOURCE_V1_RELEASE_SPEC.md",
+    "sha256": "5753be2bd2ff7af6d892381c9294a477eb2d7839ec7f5df886f1096e490d2026"
+  },
+  "endorsement": false
+}

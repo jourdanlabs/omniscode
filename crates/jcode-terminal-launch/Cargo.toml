@@ -1,0 +1,12 @@
+[package]
+name = "jcode-terminal-launch"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+repository = "https://github.com/jourdanlabs/omniscode"
+homepage = "https://github.com/jourdanlabs/omniscode"
+publish = false
+
+[dependencies]
+anyhow = "1"
+dirs = "5"

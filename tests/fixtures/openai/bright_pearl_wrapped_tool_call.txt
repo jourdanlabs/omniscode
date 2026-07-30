@@ -1,0 +1,3 @@
+Synthetic parser fixture prefix.
+assistant to=functions.batch commentary {}json
+{"tool_calls":[{"tool":"read","file_path":"src/example.rs","offset":0,"limit":8}]}

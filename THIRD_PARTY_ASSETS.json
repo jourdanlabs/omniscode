@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "inventoryScope": "Every retained font, icon, media file, prompt/model-facing text, fixture/testdata file, and tooling data artifact selected by scripts/check_third_party_inventory.sh",
+  "upstreamBaseCommit": "a3a24cdb3aee97ebb43fe84e79bfa63828f3a39a",
+  "licenseFiles": [
+    {
+      "path": "third_party/licenses/Apache-2.0.txt",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "path": "third_party/licenses/OFL-1.1.txt",
+      "sha256": "ebc109078c06f79af74cf2b27454c262830d12a65749f0e2bf25d1ac1db7a02a"
+    }
+  ],
+  "assets": [
+    {
+      "path": "crates/jcode-app-core/src/tool/testdata/ddg_anomaly.html",
+      "sha256": "a8d920efdd40a267812141c2aa477dd1f2de89a10d4562cdca19aca28effd339",
+      "category": "testdata",
+      "source": "JourdanLabs-authored synthetic search parser fixture",
+      "copyright": "JourdanLabs contributors",
+      "license": "MIT",
+      "redistribution": "allowed",
+      "requiredNotice": "NOTICE.md"
+    },
+    {
+      "path": "crates/jcode-app-core/src/tool/testdata/ddg_results.html",
+      "sha256": "00d9dd0b41199147d0521f14266046e5d47bdd8f68b6cf84d62e1df13a1918df",
+      "category": "testdata",
+      "source": "JourdanLabs-authored synthetic search parser fixture",
+      "copyright": "JourdanLabs contributors",
+      "license": "MIT",
+      "redistribution": "allowed",
+      "requiredNotice": "NOTICE.md"
+    },
+    {
+      "path": "crates/jcode-base/src/prompt/mission_continuation.md",
+      "sha256": "cba6b3e6349d36b41aa1977978758e47d44230cb3bad92cacd2877e34c7fae88",
+      "category": "model-facing-text",
+      "source": "jcode upstream base commit",
+      "copyright": "Jeremy Huang and jcode contributors",
+      "license": "MIT",
+      "redistribution": "allowed",
+      "requiredNotice": "NOTICE.md"
+    },
+    {
+      "path": "crates/jcode-base/src/prompt/selfdev_focus_tui.txt",
+      "sha256": "afd37655669ac923b781ef0297bb238f9024c1f3c390112799ca7a71fdbf1f74",
+      "category": "model-facing-text",
+      "source": "jcode upstream base commit",
+      "copyright": "Jeremy Huang and jcode contributors",
+      "license": "MIT",
+      "redistribution": "allowed",
+      "requiredNotice": "NOTICE.md"
+    },
+    {
+      "path": "crates/jcode-base/src/prompt/selfdev_mode.txt",
+      "sha256": "21f72134494ec0e1a733a5151b936da7a34f8a138134a06cf06fe3e559bb36ac",
+      "category": "model-facing-text",
+      "source": "jcode upstream base commit",
+      "copyright": "Jeremy Huang and jcode contributors",
+      "license": "MIT",
+      "redistribution": "allowed",
+      "requiredNotice": "NOTICE.md"
+    },
+    {
+      "path": "crates/jcode-base/src/prompt/swarm_prompt.md",
+      "sha256": "cf0ed41071a278d2288d1c7c0fb4a25f78556d392441f69e018ae642b2e2944a",
+      "category": "model-facing-text",
+      "source": "jcode upstream base commit",
+      "copyright": "Jeremy Huang and jcode contributors",
+      "license": "MIT",
+      "redistribution": "allowed",
+      "requiredNotice": "NOTICE.md"
+    },
+    {
+      "path": "crates/jcode-base/src/prompt/system_prompt.md",
+      "sha256": "9a4327d846d9f004433e0505bdc902c91bb542be8e6031b05c8013780b7df81a",
+      "category": "model-facing-text",
+      "source": "Derived from jcode upstream base commit; modified by JourdanLabs for OMNIS V1",
+      "copyright": "Jeremy Huang, jcode contributors, and JourdanLabs contributors",
+      "license": "MIT",
+      "redistribution": "allowed",
+      "requiredNotice": "NOTICE.md"
+    },
+    {
+      "path": "tests/fixtures/openai/bright_pearl_wrapped_tool_call.txt",
+      "sha256": "f320c9d377f8414729d5193bcad94082140946b07de997449a46f5d37359ed63",
+      "category": "fixture",
+      "source": "JourdanLabs-authored synthetic provider parser fixture",
+      "copyright": "JourdanLabs contributors",
+      "license": "MIT",
+      "redistribution": "allowed",
+      "requiredNotice": "NOTICE.md"
+    },
+    {
+      "path": "scripts/code_size_budget.json",
+      "sha256": "5eae16009ce76fe485b6b08036e58f964a4d4018cb75cef1509a01ded72e348a",
+      "category": "guardrail-data",
+      "source": "jcode upstream base commit",
+      "copyright": "Jeremy Huang and jcode contributors",
+      "license": "MIT",
+      "redistribution": "allowed",
+      "requiredNotice": "NOTICE.md"
+    },
+    {
+      "path": "scripts/panic_budget.json",
+      "sha256": "3cbaa730f12783f08d2d495b081a7330e2701a83956b3bdf97c8be446c8344b7",
+      "category": "guardrail-data",
+      "source": "jcode upstream base commit",
+      "copyright": "Jeremy Huang and jcode contributors",
+      "license": "MIT",
+      "redistribution": "allowed",
+      "requiredNotice": "NOTICE.md"
+    },
+    {
+      "path": "scripts/swallowed_error_budget.json",
+      "sha256": "136a2f16de0a4a50e2d581cd8e82a2cf2f855fa3af306f7ab7882370f5081cde",
+      "category": "guardrail-data",
+      "source": "jcode upstream base commit",
+      "copyright": "Jeremy Huang and jcode contributors",
+      "license": "MIT",
+      "redistribution": "allowed",
+      "requiredNotice": "NOTICE.md"
+    },
+    {
+      "path": "scripts/test_size_budget.json",
+      "sha256": "2576cf62513e863c86b629e7f4c890c270c2df5368c0d71ed028bd8092b9b581",
+      "category": "guardrail-data",
+      "source": "jcode upstream base commit",
+      "copyright": "Jeremy Huang and jcode contributors",
+      "license": "MIT",
+      "redistribution": "allowed",
+      "requiredNotice": "NOTICE.md"
+    },
+    {
+      "path": "scripts/wildcard_reexport_budget.json",
+      "sha256": "01fb4a5571cb202015871e7542f609f782a4f57269fa6ecae6046dd221e6a82d",
+      "category": "guardrail-data",
+      "source": "jcode upstream base commit",
+      "copyright": "Jeremy Huang and jcode contributors",
+      "license": "MIT",
+      "redistribution": "allowed",
+      "requiredNotice": "NOTICE.md"
+    }
+  ],
+  "vendoredDependencies": [],
+  "submodules": [],
+  "gitLfsObjects": [],
+  "dependencyLicenseEvidence": "Cargo dependencies are not vendored in the source tree; the pinned cargo-deny license leg evaluates Cargo.lock and emits the retained security report.",
+  "unknownOrIncompatibleRights": []
+}

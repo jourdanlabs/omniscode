@@ -1,0 +1,14 @@
+[package]
+name = "jcode-provider-antigravity"
+version = "0.1.0"
+edition = "2024"
+publish = false
+license = "MIT"
+repository = "https://github.com/jourdanlabs/omniscode"
+homepage = "https://github.com/jourdanlabs/omniscode"
+
+[dependencies]
+chrono = { version = "0.4", features = ["serde"] }
+jcode-provider-gemini = { path = "../jcode-provider-gemini" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

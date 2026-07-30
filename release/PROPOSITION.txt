@@ -1,0 +1,9 @@
+OMNIS KEY Local Integrity V1 is a transparently attributed fork of jcode
+whose inherited upstream code and JourdanLabs-authored modifications are
+offered under MIT.
+It adds per-record-bounded, idempotent, hash-linked local evidence receipts.
+A terminal ambient-permission decision processed by the SafetySystem
+atomically commits the decision and a receipt obligation. Receipt failure
+leaves that obligation pending; reconciled status requires the exact matching
+receipt. Receipt and bound safety state refuse malformed, partial, internally
+inconsistent, orphaned, drifted, or mismatched bytes.

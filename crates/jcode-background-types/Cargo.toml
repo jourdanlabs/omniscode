@@ -1,0 +1,11 @@
+[package]
+name = "jcode-background-types"
+version = "0.1.0"
+edition = "2024"
+publish = false
+license = "MIT"
+repository = "https://github.com/jourdanlabs/omniscode"
+homepage = "https://github.com/jourdanlabs/omniscode"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
