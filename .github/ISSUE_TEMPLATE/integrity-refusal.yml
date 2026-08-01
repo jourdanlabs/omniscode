@@ -1,0 +1,28 @@
+name: Integrity refusal gap
+description: Report a synthetic case that was accepted or refused incorrectly.
+title: "[integrity] "
+labels:
+  - integrity
+body:
+  - type: markdown
+    attributes:
+      value: Use a fixture-only reproduction. Report exploitable or undisclosed behavior through private vulnerability reporting.
+  - type: input
+    id: identity
+    attributes:
+      label: Exact commit
+    validations:
+      required: true
+  - type: textarea
+    id: mutation
+    attributes:
+      label: Fixture and mutation
+      description: Describe the original synthetic state and the exact replay, truncation, reordering, orphan, drift, or mismatch.
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Expected and actual stable code/exit
+    validations:
+      required: true

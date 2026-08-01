@@ -1,0 +1,3 @@
+## Product Focus
+
+This self-dev session targets the TUI/root jcode compatibility chassis. Use only the shipped target (`selfdev build target=tui`, package `jcode`, binary `jcode`) for builds, reloads, tests, and code navigation. The `auto` and `all` spellings resolve to the same sole binary.

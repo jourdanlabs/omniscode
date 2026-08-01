@@ -1,0 +1,268 @@
+name: OMNIS V1 CI
+
+on:
+  push:
+    branches:
+      - main
+      - codex/release-omnis-key-foundation-v0.1.0
+      - release/omnis-code-v0.1.0
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: omnis-v1-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTUP_TOOLCHAIN: 1.97.1
+
+jobs:
+  linux-integrity:
+    name: Linux Rust 1.97.1 / integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Check out candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install pinned Rust
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal \
+            --component clippy --component rustfmt
+
+      - name: Format
+        run: cargo fmt --all -- --check
+
+      - name: Check workspace
+        run: cargo check --workspace --all-targets
+
+      - name: Strict OMNIS clippy
+        run: |
+          cargo clippy -p jcode-omnis --all-targets -- -D warnings
+          cargo clippy -p omnis-key-cli --all-targets -- -D warnings
+
+      - name: OMNIS receipt and CLI suites
+        run: |
+          cargo test -p jcode-omnis
+          cargo test -p omnis-key-cli
+          cargo build --locked -p omnis-key-cli --bin omnis-key
+          cargo build --locked --bin jcode
+
+      - name: Zero-attempt, exact-write, hostile-environment, and PTY gate
+        run: |
+          python3 tests/sovereignty/test_verify_runtime_adversarial.py
+          python3 tests/sovereignty/verify_runtime.py \
+            --jcode target/debug/jcode \
+            --omnis-key target/debug/omnis-key \
+            --receipt target/sovereignty/runtime-receipt.json
+          python3 tests/holds/reproduce_demo_sigkill_reclamation_hold.py \
+            --omnis-key target/debug/omnis-key
+
+      - name: Retain Linux sovereignty receipt
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: sovereignty-linux-${{ github.sha }}
+          path: target/sovereignty/runtime-receipt.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Safety and isolated startup suites
+        run: |
+          cargo test -p jcode-base omnis::tests
+          cargo test -p jcode-base safety::tests
+          cargo test -p jcode-base safety::adversarial_tests
+          cargo test -p jcode --lib cli::omnis::tests
+          cargo test -p jcode --lib cli::startup::tests
+          cargo test -p jcode --lib \
+            cli::args::tests::omnis_checkpoint_commands_expose_no_authority_override
+          cargo test --test e2e safety -- --test-threads=1
+
+      - name: Metadata, rights, and quarantine
+        run: |
+          python3 scripts/test_security_exception_binding.py
+          scripts/check_workspace_metadata.sh
+          scripts/check_third_party_inventory.sh
+          scripts/check_release_hygiene.sh
+          git diff --check
+
+  macos-integrity:
+    name: macOS Rust 1.97.1 / integrity
+    runs-on: macos-latest
+    timeout-minutes: 90
+    steps:
+      - name: Check out candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install pinned Rust
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal \
+            --component clippy --component rustfmt
+
+      - name: Receipt, safety, checkpoint, and CLI suites
+        run: |
+          cargo test -p jcode-omnis
+          cargo test -p omnis-key-cli
+          cargo test -p jcode-base omnis::tests
+          cargo test -p jcode-base safety::tests
+          cargo test -p jcode-base safety::adversarial_tests
+          cargo test -p jcode --lib cli::omnis::tests
+          cargo test -p jcode --lib cli::startup::tests
+          cargo build --locked -p omnis-key-cli --bin omnis-key
+          cargo build --locked --bin jcode
+
+      - name: Zero-attempt, exact-write, hostile-environment, and PTY gate
+        run: |
+          python3 tests/sovereignty/test_verify_runtime_adversarial.py
+          python3 tests/sovereignty/verify_runtime.py \
+            --jcode target/debug/jcode \
+            --omnis-key target/debug/omnis-key \
+            --receipt target/sovereignty/runtime-receipt.json
+          python3 tests/holds/reproduce_demo_sigkill_reclamation_hold.py \
+            --omnis-key target/debug/omnis-key
+
+      - name: Retain macOS sovereignty receipt
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: sovereignty-macos-${{ github.sha }}
+          path: target/sovereignty/runtime-receipt.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Bash 3.2 static compatibility
+        run: |
+          python3 scripts/test_security_exception_binding.py
+          /bin/bash -n scripts/security_preflight.sh
+          /bin/bash -n scripts/build_source_archive.sh
+          /bin/bash -n scripts/check_third_party_inventory.sh
+          /bin/bash -n scripts/check_workspace_metadata.sh
+          /bin/bash -n scripts/check_release_hygiene.sh
+
+  security:
+    name: Security / fail closed
+    runs-on: ubuntu-24.04-arm
+    container:
+      image: rust@sha256:77fac8b98f9f46062bb680b6d25d5bcaabfc400143952ebc572e924bcbedc3fa
+    timeout-minutes: 90
+    steps:
+      - name: Check out complete candidate history
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Install pinned preflight OS dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          apt-get update
+          apt-get install -y --no-install-recommends jq python3
+          rm -rf /var/lib/apt/lists/*
+
+      - name: Install pinned Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: 1.26.5
+          cache: false
+
+      - name: Install pinned security tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          . config/security/tools.env
+          install -d -m 700 "$RUNNER_TEMP/security-tools/bin"
+          git init "$RUNNER_TEMP/gitleaks-source"
+          git -C "$RUNNER_TEMP/gitleaks-source" remote add origin \
+            https://github.com/gitleaks/gitleaks.git
+          git -C "$RUNNER_TEMP/gitleaks-source" fetch --depth=1 origin \
+            "refs/tags/v${GITLEAKS_VERSION}:refs/tags/v${GITLEAKS_VERSION}"
+          test "$(git -C "$RUNNER_TEMP/gitleaks-source" rev-list -n 1 \
+            "refs/tags/v${GITLEAKS_VERSION}")" = "$GITLEAKS_SOURCE_COMMIT"
+          git -C "$RUNNER_TEMP/gitleaks-source" checkout --detach \
+            "$GITLEAKS_SOURCE_COMMIT"
+          test -z "$(git -C "$RUNNER_TEMP/gitleaks-source" \
+            status --porcelain --untracked-files=all)"
+          (
+            cd "$RUNNER_TEMP/gitleaks-source"
+            CGO_ENABLED=0 go build -trimpath -buildvcs=true \
+              -ldflags "-s -w -X=github.com/zricethezav/gitleaks/v8/version.Version=v${GITLEAKS_VERSION}" \
+              -o "$RUNNER_TEMP/security-tools/bin/gitleaks" .
+          )
+          go version -m "$RUNNER_TEMP/security-tools/bin/gitleaks" |
+            grep -F "vcs.revision=${GITLEAKS_SOURCE_COMMIT}"
+          cargo install --locked --root "$RUNNER_TEMP/security-tools" \
+            --version "$CARGO_AUDIT_VERSION" cargo-audit
+          cargo install --locked --root "$RUNNER_TEMP/security-tools" \
+            --version "$CARGO_DENY_VERSION" cargo-deny
+          echo "$RUNNER_TEMP/security-tools/bin" >> "$GITHUB_PATH"
+
+      - name: Materialize pinned RustSec database
+        shell: bash
+        run: |
+          set -euo pipefail
+          . config/security/tools.env
+          git init "$RUNNER_TEMP/advisory-db"
+          git -C "$RUNNER_TEMP/advisory-db" remote add origin \
+            https://github.com/RustSec/advisory-db.git
+          git -C "$RUNNER_TEMP/advisory-db" fetch --depth=1 origin \
+            "$RUSTSEC_ADVISORY_DB_COMMIT"
+          git -C "$RUNNER_TEMP/advisory-db" checkout --detach FETCH_HEAD
+          test "$(git -C "$RUNNER_TEMP/advisory-db" rev-parse HEAD)" = \
+            "$RUSTSEC_ADVISORY_DB_COMMIT"
+
+      - name: Build exact local review archive
+        shell: bash
+        run: |
+          scripts/build_source_archive.sh \
+            --ref HEAD \
+            --output "$RUNNER_TEMP/omnis-key-source.tar.gz"
+
+      - name: Run fail-closed preflight
+        shell: bash
+        run: |
+          scripts/security_preflight.sh \
+            --candidate-ref HEAD \
+            --archive "$RUNNER_TEMP/omnis-key-source.tar.gz" \
+            --advisory-db "$RUNNER_TEMP/advisory-db" \
+            --report "$RUNNER_TEMP/security-report.json"
+
+      - name: Retain security evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: security-report-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/security-report.json
+            ${{ runner.temp }}/security-report.json.sha256
+          if-no-files-found: error
+          retention-days: 30
+
+  source-archive:
+    name: Source archive / build
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Check out candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install pinned Rust
+        run: rustup toolchain install 1.97.1 --profile minimal
+
+      - name: Build and verify local review archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/test_verify_source_archive.py
+          scripts/build_source_archive.sh \
+            --ref HEAD \
+            --output "$RUNNER_TEMP/omnis-key-source.tar.gz"
+          archive_json=$(python3 scripts/verify_source_archive.py \
+            --archive "$RUNNER_TEMP/omnis-key-source.tar.gz" \
+            --ref HEAD --json)
+          prefix=$(printf '%s' "$archive_json" | jq -r .prefix)
+          install -d -m 700 "$RUNNER_TEMP/source"
+          tar -xzf "$RUNNER_TEMP/omnis-key-source.tar.gz" \
+            -C "$RUNNER_TEMP/source"
+          cd "$RUNNER_TEMP/source/${prefix%/}"
+          cargo build --locked -p omnis-key-cli --bin omnis-key
+          cargo build --locked -p jcode --bin jcode
