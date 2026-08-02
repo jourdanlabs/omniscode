@@ -14,6 +14,11 @@ const CURSOR_API_BASE: &str = "https://api2.cursor.sh";
 // not the Composer model number. Override at runtime with
 // `JCODE_CURSOR_CLIENT_VERSION` if Cursor moves the floor again.
 const CURSOR_DIRECT_CLIENT_VERSION_DEFAULT: &str = "3.8.24";
+// Public OAuth client identifier for Cursor's browser flow — deliberately hardcoded, and
+// not a credential. No client secret accompanies it, and possession authorizes nothing:
+// the user still signs in. Different category from a client ID shipped *with* a secret,
+// which is why the Google OAuth credentials left this tree and this stayed. See the
+// secret-scan section of `README.md`.
 const CURSOR_OAUTH_CLIENT_ID: &str = "KbZUR41cY7W6zRSdpSUJ7I7mLYBKOCmB";
 const CURSOR_EXTERNAL_COMMAND_TIMEOUT: Duration = Duration::from_secs(3);
 pub const CURSOR_AUTH_FILE_SOURCE_ID: &str = "cursor_auth_json";

@@ -37,6 +37,12 @@ pub fn invalidate_github_token_cache() {
 
 /// VSCode's OAuth client ID for GitHub Copilot device flow.
 /// This is the well-known client ID used by VS Code, OpenCode, and other tools.
+///
+/// **Deliberately hardcoded, and not a credential.** Device flow publishes its client ID;
+/// there is no client secret here, and possession of this value authorizes nothing —
+/// the user still authenticates in a browser. This is a different category from a client
+/// ID shipped *with* a secret, which is why the Google OAuth credentials were removed from
+/// this tree and this was not. See the secret-scan section of `README.md`.
 pub const GITHUB_COPILOT_CLIENT_ID: &str = "Iv1.b507a08c87ecfe98";
 
 /// GitHub endpoints for Copilot auth

@@ -1,12 +1,12 @@
 # OMNIS CODE
 
-**jcode is a real coding agent — provider-agnostic, TUI + CLI. OMNIS CODE ships jcode with ambient auto-discovery off and **every mutating action** (edit, write, bash) receipted in a hash-chained ledger — redacted by default (shape + hashes, never raw secrets). You pick your provider, you authorize the work, and mutations leave a verifiable receipt (or the tool fails closed).**
+**OMNIS CODE is a real coding agent — provider-agnostic, TUI + CLI — that proves what it did or refuses to say. Ambient auto-discovery is off. **Every mutating action** (edit, write, bash) is receipted in a hash-chained ledger, redacted by default: shape and hashes, never raw secrets. You pick your provider, you authorize the work, and mutations leave a verifiable receipt — or the tool fails closed.**
 
-This is a transparently attributed MIT fork of [jcode](https://github.com/1jehuang/jcode) (© Jeremy Huang), with JourdanLabs-authored integrity and receipt work on top. See `LICENSE` and `NOTICE.md`.
+MIT. Upstream attribution in `LICENSE` and `NOTICE.md`.
 
 | Binary | Role |
 |--------|------|
-| `jcode` | The coding agent (TUI + CLI) |
+| `omnis-code` | The coding agent (TUI + CLI) |
 | `omnis-key` | The receipt / integrity engine |
 
 ### Claim Ledger (new)
@@ -39,7 +39,10 @@ Nothing about coding was removed. What v1 turns off is the surface a bank would 
 
 - **No auto-update** — no silent binary upgrade or re-exec  
 - **No auto-reload** — no ambient server reload fan-out  
-- **No ambient credential discovery on startup** — credentials do not invent routes until you act  
+- **No ambient credential discovery on startup** — an API key sitting in your environment
+  does not create a provider route. A credential **you saved yourself** (`omnis-code login`)
+  *does* arm its route on the next start: saving it was the act. What is off is the
+  ambient path — env vars and stray credential files inventing routes you never chose  
 - **No provider routes before you pick one** — Auto startup stays empty until explicit selection  
 - **Checkpoint authority is dark by default** — signing daemon/install/activation is **not** provisioned by these sources; the engine is local receipts first  
 
@@ -87,8 +90,8 @@ See [`docs/QUICKSTART.md`](docs/QUICKSTART.md).
 
 ```bash
 ./target/release/omnis-key demo integrity
-./target/release/jcode login    # explicit provider
-./target/release/jcode run "…"  # coding turn
+./target/release/omnis-code login    # explicit provider
+./target/release/omnis-code run "…"  # coding turn
 ./target/release/omnis-key receipts status
 ```
 
@@ -134,6 +137,15 @@ is ever reintroduced. No `gitleaks:allow` remains anywhere in the tree.
 It is recorded here because a project that ships receipts does not get to
 quietly fix the one time its own receipt overstated a result.
 
+**Two OAuth client IDs remain in the tree, on purpose.** `GITHUB_COPILOT_CLIENT_ID`
+(`crates/jcode-base/src/auth/copilot.rs`) and `CURSOR_OAUTH_CLIENT_ID`
+(`crates/jcode-base/src/auth/cursor.rs`) are **public device-flow client identifiers with
+no accompanying secret** — the category of value that is published in every compatible
+client because the flow requires the user to authorize in a browser. That is a different
+thing from the four Google credentials above, which carried secrets. The line is drawn on
+*is there a secret attached*, not on *does it look like an ID*. Named here so the next
+person to grep does not have to guess why one set left and one stayed.
+
 
 Checkpoint authority activation, LIVE providers, Door publication, and signed RC ceremony are **out of band** for this source pin.
 
@@ -141,4 +153,4 @@ Checkpoint authority activation, LIVE providers, Door publication, and signed RC
 
 ## Lineage
 
-MIT. Upstream jcode attribution preserved. JourdanLabs modifications are for local integrity, receipts, and the V1 quarantine. See `NOTICE.md`.
+MIT. Upstream attribution preserved in full — see `LICENSE` and `NOTICE.md`. JourdanLabs authored the Claim Ledger, the receipt engine, and the V1 quarantine.
