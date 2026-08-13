@@ -1,6 +1,7 @@
 use super::openrouter_sse_stream::run_stream_with_retries;
 use super::*;
 use jcode_base::provider::{ModelCatalogRefreshSummary, summarize_model_catalog_refresh};
+use std::borrow::Cow;
 
 #[async_trait]
 impl Provider for OpenRouterProvider {
@@ -71,8 +72,14 @@ impl Provider for OpenRouterProvider {
         // field and top-level `thinking` request field with a 422 error
         // ("Extra inputs are not permitted"). Suppress both for those endpoints
         // regardless of any thinking override (issue #261).
-        let strict_openai_schema =
-            Self::strict_openai_schema_endpoint(self.profile_id.as_deref(), &self.api_base);
+        let terminus = Self::terminus_endpoint(self.profile_id.as_deref(), &self.api_base);
+        let system = if terminus {
+            Cow::Owned(Self::terminus_scrub_text(system))
+        } else {
+            Cow::Borrowed(system)
+        };
+        let strict_openai_schema = terminus
+            || Self::strict_openai_schema_endpoint(self.profile_id.as_deref(), &self.api_base);
         let allow_reasoning = allow_reasoning && !strict_openai_schema;
         let include_reasoning_content = include_reasoning_content && !strict_openai_schema;
         let allow_image_input = self.supports_image_input();
@@ -87,7 +94,7 @@ impl Provider for OpenRouterProvider {
 
         let api_messages = jcode_provider_openrouter::request::build_chat_messages(
             &effective_messages,
-            system,
+            system.as_ref(),
             allow_reasoning,
             include_reasoning_content,
             allow_image_input,
@@ -119,7 +126,7 @@ impl Provider for OpenRouterProvider {
             "stream": true,
         });
 
-        if !self.supports_provider_features {
+        if !self.supports_provider_features && !terminus {
             request["stream_options"] = serde_json::json!({
                 "include_usage": true,
             });
@@ -242,6 +249,10 @@ impl Provider for OpenRouterProvider {
             for (key, value) in extra {
                 request_obj.insert(key.clone(), value.clone());
             }
+        }
+
+        if terminus {
+            Self::terminus_sanitize_request(&mut request);
         }
 
         let message_items = request

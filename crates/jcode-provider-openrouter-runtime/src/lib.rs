@@ -1320,6 +1320,97 @@ impl OpenRouterProvider {
         api_base.to_ascii_lowercase().contains("mistral.ai")
     }
 
+    /// CADUCEUS / TERMINUS loopback. Extra OpenAI fields and home paths get
+    /// the request refused or grocery-labeled. Keep MCP/tools; drop costume.
+    fn terminus_endpoint(profile_id: Option<&str>, api_base: &str) -> bool {
+        if profile_id.is_some_and(|id| {
+            id.eq_ignore_ascii_case("terminus") || id.eq_ignore_ascii_case("caduceus")
+        }) {
+            return true;
+        }
+        let base = api_base.to_ascii_lowercase();
+        base.contains("127.0.0.1:8788")
+            || base.contains("127.0.0.1:8766")
+            || base.contains("localhost:8788")
+            || base.contains("localhost:8766")
+    }
+
+    fn terminus_scrub_text(text: &str) -> String {
+        let mut out = String::with_capacity(text.len());
+        let bytes = text.as_bytes();
+        let mut i = 0;
+        while i < bytes.len() {
+            if bytes[i] == b'/'
+                && (text[i..].starts_with("/Users/") || text[i..].starts_with("/home/"))
+            {
+                let rest = &text[i + 1..];
+                let skip = rest.find(char::is_whitespace).unwrap_or(rest.len());
+                out.push_str("/workspace");
+                i += 1 + skip;
+                continue;
+            }
+            if text[i..].starts_with("/private/tmp") {
+                out.push_str("/tmp");
+                i += "/private/tmp".len();
+                continue;
+            }
+            let ch = text[i..].chars().next().unwrap();
+            out.push(ch);
+            i += ch.len_utf8();
+        }
+        out
+    }
+
+    fn terminus_scrub_value(value: &mut serde_json::Value) {
+        match value {
+            serde_json::Value::String(text) => {
+                *text = Self::terminus_scrub_text(text);
+            }
+            serde_json::Value::Array(items) => {
+                for item in items {
+                    Self::terminus_scrub_value(item);
+                }
+            }
+            serde_json::Value::Object(map) => {
+                for item in map.values_mut() {
+                    Self::terminus_scrub_value(item);
+                }
+            }
+            _ => {}
+        }
+    }
+
+    fn terminus_sanitize_request(request: &mut serde_json::Value) {
+        const KEEP: &[&str] = &[
+            "model",
+            "messages",
+            "stream",
+            "request_id",
+            "lane",
+            "model_id",
+            "temperature",
+            "max_tokens",
+            "max_completion_tokens",
+            "tools",
+            "tool_choice",
+            "context_handle",
+            "context_manifest_digest",
+            "context_ide_instance_id",
+            "context_workspace_policy_digest",
+            "context_origin_classification",
+        ];
+        if let Some(obj) = request.as_object_mut() {
+            obj.retain(|key, _| KEEP.contains(&key.as_str()));
+            // Tools stay in the TUI. They do not ride TERMINUS until the
+            // TRANSFORM+fallback path can carry openai_tools to MiniMax.
+            obj.remove("tools");
+            obj.remove("tool_choice");
+            if let Some(messages) = obj.get_mut("messages") {
+                Self::terminus_scrub_value(messages);
+            }
+        }
+    }
+
     pub fn new() -> Result<Self> {
         if inherited_jcode_transport_requested() {
             anyhow::bail!(

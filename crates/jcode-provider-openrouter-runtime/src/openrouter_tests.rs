@@ -2267,6 +2267,55 @@ fn strict_openai_schema_endpoint_allows_other_providers() {
 }
 
 #[test]
+fn terminus_endpoint_detects_loopback_and_profile() {
+    assert!(OpenRouterProvider::terminus_endpoint(
+        Some("terminus"),
+        "https://example.com/v1"
+    ));
+    assert!(OpenRouterProvider::terminus_endpoint(
+        None,
+        "http://127.0.0.1:8788/v1"
+    ));
+    assert!(OpenRouterProvider::terminus_endpoint(
+        Some("key"),
+        "http://127.0.0.1:8766/v1"
+    ));
+    assert!(!OpenRouterProvider::terminus_endpoint(
+        Some("openai"),
+        "https://api.openai.com/v1"
+    ));
+}
+
+#[test]
+fn terminus_scrub_text_strips_home_paths() {
+    let got = OpenRouterProvider::terminus_scrub_text(
+        "cwd /Users/sokpyeon/.omniskey/key-talk/ws and /private/tmp/x",
+    );
+    assert_eq!(got, "cwd /workspace and /tmp/x");
+}
+
+#[test]
+fn terminus_sanitize_request_drops_stream_options() {
+    let mut request = serde_json::json!({
+        "model": "plan",
+        "messages": [{"role":"user","content":"hi from /Users/sokpyeon/proj"}],
+        "stream": true,
+        "stream_options": {"include_usage": true},
+        "thinking": {"type": "enabled"},
+    });
+    OpenRouterProvider::terminus_sanitize_request(&mut request);
+    assert!(request.get("stream_options").is_none());
+    assert!(request.get("thinking").is_none());
+    assert_eq!(request["model"], "plan");
+    assert!(
+        request["messages"][0]["content"]
+            .as_str()
+            .unwrap()
+            .contains("/workspace")
+    );
+}
+
+#[test]
 fn runtime_display_name_for_profile_runtime_instance() {
     // Direct unit coverage of the per-instance resolver used by
     // `Provider::display_name`.
