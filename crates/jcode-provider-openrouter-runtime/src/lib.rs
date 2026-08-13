@@ -1413,14 +1413,37 @@ impl OpenRouterProvider {
         ];
         if let Some(obj) = request.as_object_mut() {
             obj.retain(|key, _| KEEP.contains(&key.as_str()));
-            // Tools stay in the TUI. They do not ride TERMINUS until the
-            // TRANSFORM+fallback path can carry openai_tools to MiniMax.
-            obj.remove("tools");
-            obj.remove("tool_choice");
+            // Sandbox coding tools may leave. MCP / house tools do not.
+            if let Some(tools) = obj.get_mut("tools") {
+                Self::terminus_filter_tools(tools);
+                Self::terminus_scrub_value(tools);
+                let empty = tools.as_array().map(|a| a.is_empty()).unwrap_or(true);
+                if empty {
+                    obj.remove("tools");
+                    obj.remove("tool_choice");
+                }
+            }
             if let Some(messages) = obj.get_mut("messages") {
                 Self::terminus_scrub_value(messages);
             }
         }
+    }
+
+    fn terminus_tool_allowed(name: &str) -> bool {
+        matches!(name, "bash" | "read" | "write" | "edit" | "glob" | "grep")
+    }
+
+    fn terminus_filter_tools(tools: &mut serde_json::Value) {
+        let Some(arr) = tools.as_array_mut() else {
+            *tools = serde_json::json!([]);
+            return;
+        };
+        arr.retain(|tool| {
+            tool.get("function")
+                .and_then(|f| f.get("name"))
+                .and_then(|n| n.as_str())
+                .is_some_and(Self::terminus_tool_allowed)
+        });
     }
 
     pub fn new() -> Result<Self> {

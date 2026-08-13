@@ -2330,6 +2330,41 @@ fn terminus_sanitize_request_drops_stream_options() {
 }
 
 #[test]
+fn terminus_sanitize_request_keeps_sandbox_tools_drops_mcp() {
+    let mut request = serde_json::json!({
+        "model": "plan",
+        "messages": [{"role":"user","content":"hi"}],
+        "tools": [
+            {"type":"function","function":{"name":"bash","description":"run in /Users/sokpyeon/omnis-sandbox","parameters":{}}},
+            {"type":"function","function":{"name":"write","description":"write a file","parameters":{}}},
+            {"type":"function","function":{"name":"cairn_ask","description":"search the chamber","parameters":{}}},
+            {"type":"function","function":{"name":"obsidian-vault__read","description":"read vault","parameters":{}}}
+        ],
+        "tool_choice": "auto"
+    });
+    unsafe {
+        std::env::set_var("TERMINUS_SANDBOX_ROOT", "/Users/sokpyeon/omnis-sandbox");
+    }
+    OpenRouterProvider::terminus_sanitize_request(&mut request);
+    unsafe {
+        std::env::remove_var("TERMINUS_SANDBOX_ROOT");
+    }
+    let tools = request["tools"].as_array().expect("tools stay");
+    let names: Vec<&str> = tools
+        .iter()
+        .filter_map(|t| t["function"]["name"].as_str())
+        .collect();
+    assert_eq!(names, ["bash", "write"]);
+    assert!(!request.to_string().contains("cairn_ask"));
+    assert!(!request.to_string().contains("/Users/sokpyeon"));
+    assert!(request["tools"][0]["function"]["description"]
+        .as_str()
+        .unwrap()
+        .contains("/sandbox"));
+    assert_eq!(request["tool_choice"], "auto");
+}
+
+#[test]
 fn runtime_display_name_for_profile_runtime_instance() {
     // Direct unit coverage of the per-instance resolver used by
     // `Provider::display_name`.
