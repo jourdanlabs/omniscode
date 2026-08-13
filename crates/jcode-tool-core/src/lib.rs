@@ -11,6 +11,20 @@ pub const TOOL_INTENT_DESCRIPTION: &str = concat!(
     "Used for compact UI display only. Required on every call; do not use this instead of required tool parameters."
 );
 
+/// Inverse of TERMINUS outbound rewrite. MiniMax sees `/sandbox` and echoes
+/// it back in tool calls; local tools must write to the real box.
+pub fn unscrib_terminus_sandbox(text: &str) -> String {
+    let root = std::env::var("TERMINUS_SANDBOX_ROOT")
+        .or_else(|_| std::env::var("OMNIS_SANDBOX_ROOT"))
+        .ok()
+        .map(|s| s.trim_end_matches('/').to_string())
+        .filter(|s| !s.is_empty());
+    match root {
+        Some(root) => text.replace("/sandbox", &root),
+        None => text.to_string(),
+    }
+}
+
 pub fn intent_schema_property() -> Value {
     serde_json::json!({
         "type": "string",
@@ -103,6 +117,8 @@ impl ToolContext {
     }
 
     pub fn resolve_path(&self, path: &Path) -> PathBuf {
+        let remapped = unscrib_terminus_sandbox(&path.to_string_lossy());
+        let path = Path::new(&remapped);
         if path.is_absolute() {
             path.to_path_buf()
         } else if let Some(ref base) = self.working_dir {

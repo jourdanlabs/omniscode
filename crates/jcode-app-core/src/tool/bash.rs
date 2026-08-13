@@ -688,6 +688,7 @@ impl Tool for BashTool {
 
     async fn execute(&self, input: Value, ctx: ToolContext) -> Result<ToolOutput> {
         let mut params: BashInput = serde_json::from_value(input)?;
+        params.command = jcode_tool_core::unscrib_terminus_sandbox(&params.command);
         let run_in_background = params.run_in_background.unwrap_or(false);
 
         // Destructive-command gate (#604), before background dispatch.
