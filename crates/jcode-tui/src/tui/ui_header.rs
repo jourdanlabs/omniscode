@@ -348,9 +348,9 @@ fn semver_minor() -> String {
 
 #[cfg(test)]
 fn version_display_candidates() -> Vec<String> {
-    let full = format!("jcode {}", semver());
-    let core = format!("jcode {}", semver_core());
-    let minor = format!("jcode {}", semver_minor());
+    let full = format!("omnis {}", semver());
+    let core = format!("omnis {}", semver_core());
+    let minor = format!("omnis {}", semver_minor());
     let shortest = semver_minor();
     vec![full, core, minor, shortest]
 }
@@ -425,11 +425,11 @@ fn build_persistent_header_inner(app: &dyn TuiState, width: u16) -> Vec<Line<'st
         .as_deref()
         .map(|version| header_version_label(version, include_hash));
 
-    // First line: `jcode` (+ `self-dev` when running a dev/canary build),
+    // First line: product name (+ `self-dev` when running a dev/canary build),
     // followed by any remaining status badges rendered dimly.
     {
         let mut spans = vec![Span::styled(
-            "jcode".to_string(),
+            "omnis".to_string(),
             Style::default().fg(header_name_color()).bold(),
         )];
         if is_canary {

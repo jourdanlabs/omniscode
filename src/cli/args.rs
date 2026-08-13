@@ -52,9 +52,9 @@ pub(crate) enum ProviderAuthArg {
 }
 
 #[derive(Parser, Debug)]
-#[command(name = "jcode")]
+#[command(name = "omnis-code")]
 #[command(version = jcode_build_meta::version())]
-#[command(about = "Inherited jcode compatibility agent for OMNIS KEY")]
+#[command(about = "OMNIS CODE — a coding agent that proves what it did, or refuses to say")]
 pub(crate) struct Args {
     /// Initial provider to use (claude, openai, openai-api, openrouter, azure, opencode, opencode-go, zai, 302ai, baseten, cortecs, comtegra, deepseek, fpt, firmware, huggingface, moonshotai, nebius, scaleway, stackit, groq, mistral, perplexity, togetherai, deepinfra, xai, nvidia-nim, lmstudio, ollama, chutes, cerebras, alibaba-coding-plan, openai-compatible, cursor, copilot, gemini, antigravity, google, or auto-detect). Interactive sessions can switch providers with /model.
     #[arg(short, long, default_value = "auto", global = true)]

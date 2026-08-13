@@ -713,7 +713,7 @@ fn build_fresh_session_command(socket: Option<&str>) -> crate::terminal_launch::
         args.push(socket.to_string());
     }
     crate::terminal_launch::TerminalCommand::new(&exe, args)
-        .title("jcode · new session".to_string())
+        .title("omnis · new session".to_string())
         .kind("new-terminal")
         .fresh_spawn()
 }

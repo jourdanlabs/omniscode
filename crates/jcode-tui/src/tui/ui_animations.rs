@@ -5,7 +5,7 @@ use std::collections::{HashSet, hash_map::DefaultHasher};
 use std::hash::{Hash, Hasher};
 use std::sync::OnceLock;
 
-const IDLE_VARIANTS: &[&str] = &["donut", "orbit_rings"];
+const IDLE_VARIANTS: &[&str] = &["raven"];
 
 /// Where (if anywhere) the decorative idle animation rendered on the last full
 /// frame, so the run loop can repaint only those rows on animation ticks.
@@ -162,7 +162,7 @@ pub(crate) fn render_idle_animation_into(buf: &mut Buffer, area: Rect, elapsed: 
 // builds. They are imported under their original names so the call sites and
 // tests below are unchanged.
 use jcode_tui_anim::{
-    hsv_to_rgb, sample_black_hole, sample_donut, sample_gyroscope, sample_orbit_rings,
+    hsv_to_rgb, sample_black_hole, sample_donut, sample_gyroscope, sample_orbit_rings, sample_raven,
     shape_char_3x3,
 };
 
@@ -322,6 +322,14 @@ pub(crate) fn render_idle_animation(buf: &mut Buffer, area: Rect, elapsed: f32) 
 
         let variant = idle_animation_variant();
         match variant {
+            "raven" => sample_raven(
+                elapsed,
+                sw,
+                sh,
+                &mut bufs.hit,
+                &mut bufs.lum_map,
+                &mut bufs.z_buf,
+            ),
             "donut" => sample_donut(
                 elapsed,
                 sw,
@@ -522,6 +530,7 @@ mod tests {
     fn direct_blit_matches_paragraph() {
         type Sampler = fn(f32, usize, usize, &mut [bool], &mut [f32], &mut [f32]);
         let samplers: &[(&str, Sampler)] = &[
+            ("raven", sample_raven),
             ("donut", sample_donut),
             ("orbit_rings", sample_orbit_rings),
             ("gyroscope", sample_gyroscope),
@@ -678,9 +687,10 @@ mod tests {
 
     #[test]
     fn idle_variants_keep_normal_donut_and_exclude_cube() {
-        assert!(IDLE_VARIANTS.contains(&"donut"));
+        assert!(IDLE_VARIANTS.contains(&"raven"));
+        assert!(!IDLE_VARIANTS.contains(&"donut"));
         assert!(!IDLE_VARIANTS.contains(&"pulse_donut"));
-        assert!(IDLE_VARIANTS.contains(&"orbit_rings"));
+        assert!(!IDLE_VARIANTS.contains(&"orbit_rings"));
         assert!(!IDLE_VARIANTS.contains(&"three_rings"));
         assert!(!IDLE_VARIANTS.contains(&"cube"));
     }
@@ -702,6 +712,7 @@ mod tests {
 
     #[test]
     fn idle_animation_samplers_avoid_heavy_border_clipping() {
+        assert_idle_sampler_avoids_heavy_border_clipping("raven", sample_raven);
         assert_idle_sampler_avoids_heavy_border_clipping("donut", sample_donut);
         assert_idle_sampler_avoids_heavy_border_clipping("three_rings", sample_gyroscope);
         assert_idle_sampler_avoids_heavy_border_clipping("orbit_rings", sample_orbit_rings);

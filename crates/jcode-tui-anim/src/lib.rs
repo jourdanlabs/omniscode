@@ -273,6 +273,73 @@ pub fn sample_gyroscope(
     }
 }
 
+pub fn sample_raven(
+    elapsed: f32,
+    sw: usize,
+    sh: usize,
+    hit: &mut [bool],
+    lum_map: &mut [f32],
+    z_buf: &mut [f32],
+) {
+    let aspect = 0.5;
+    let cx = sw as f32 * 0.50;
+    let cy = sh as f32 * 0.54;
+    let scale = (sw as f32).min(sh as f32 / aspect) * 0.40;
+    let flap = (elapsed * 5.4).sin();
+    let wing_ang = flap * 0.62;
+    let bob = (elapsed * 1.3).sin() * 0.03;
+
+    for y in 0..sh {
+        for x in 0..sw {
+            let nx = (x as f32 - cx) / scale;
+            let ny = -((y as f32 - cy) / (scale * aspect)) - bob;
+            let idx = y * sw + x;
+
+            let body = ellipse2(nx, ny, 0.02, 0.00, 0.30, 0.15);
+            let head = ellipse2(nx, ny, -0.32, 0.14, 0.12, 0.11);
+            let tail = ellipse2(nx, ny, 0.36, -0.02, 0.20, 0.06);
+            let beak = {
+                let dx = nx + 0.48;
+                let dy = ny - 0.12;
+                if dx < 0.0 && dx > -0.16 && dy.abs() < 0.035 - dx * 0.12 {
+                    0.4
+                } else {
+                    4.0
+                }
+            };
+            let wing_l = rotated_ellipse(nx, ny, -0.04, 0.06, 0.46, 0.085, wing_ang);
+            let wing_r = rotated_ellipse(nx, ny, -0.04, 0.06, 0.46, 0.085, -wing_ang);
+
+            let inside = body.min(head).min(tail).min(beak).min(wing_l).min(wing_r);
+            if inside <= 1.0 {
+                hit[idx] = true;
+                let edge = (1.0 - inside).clamp(0.0, 1.0);
+                lum_map[idx] = edge * 1.6 - 0.4;
+                z_buf[idx] = 1.2 - inside * 0.3;
+            } else {
+                hit[idx] = false;
+                lum_map[idx] = -1.0;
+                z_buf[idx] = 0.0;
+            }
+        }
+    }
+}
+
+fn ellipse2(x: f32, y: f32, cx: f32, cy: f32, rx: f32, ry: f32) -> f32 {
+    let dx = (x - cx) / rx;
+    let dy = (y - cy) / ry;
+    dx * dx + dy * dy
+}
+
+fn rotated_ellipse(x: f32, y: f32, cx: f32, cy: f32, rx: f32, ry: f32, ang: f32) -> f32 {
+    let (s, c) = ang.sin_cos();
+    let dx = x - cx;
+    let dy = y - cy;
+    let xr = dx * c + dy * s;
+    let yr = -dx * s + dy * c;
+    ellipse2(xr, yr, 0.0, 0.0, rx, ry)
+}
+
 pub fn sample_orbit_rings(
     elapsed: f32,
     sw: usize,

@@ -91,15 +91,17 @@ impl App {
         } else {
             self.session.is_canary
         };
-        let server_name = self.remote_server_short_name.as_deref().unwrap_or("jcode");
+        let server_name = self.remote_server_short_name.as_deref().unwrap_or("omnis");
         let icon = connection_type_icon(self.connection_type.as_deref()).unwrap_or(session_icon);
         let session_label = crate::process_title::terminal_session_label(&session_name, None);
-        let fallback_label = if server_name.eq_ignore_ascii_case("jcode") {
-            format!("jcode {session_label}")
+        let fallback_label = if server_name.eq_ignore_ascii_case("omnis")
+            || server_name.eq_ignore_ascii_case("jcode")
+        {
+            format!("omnis {session_label}")
         } else {
-            format!("jcode/{} {session_label}", server_name.to_lowercase())
+            format!("omnis/{} {session_label}", server_name.to_lowercase())
         };
-        if server_name.eq_ignore_ascii_case("jcode") {
+        if server_name.eq_ignore_ascii_case("omnis") || server_name.eq_ignore_ascii_case("jcode") {
             crate::process_title::set_client_display_title(&session_name, is_canary);
         } else {
             crate::process_title::set_client_remote_display_title(
