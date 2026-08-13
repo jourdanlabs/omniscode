@@ -1336,10 +1336,22 @@ impl OpenRouterProvider {
     }
 
     fn terminus_scrub_text(text: &str) -> String {
+        let sandbox = std::env::var("TERMINUS_SANDBOX_ROOT")
+            .or_else(|_| std::env::var("OMNIS_SANDBOX_ROOT"))
+            .ok()
+            .map(|s| s.trim_end_matches('/').to_string())
+            .filter(|s| !s.is_empty());
         let mut out = String::with_capacity(text.len());
         let bytes = text.as_bytes();
         let mut i = 0;
         while i < bytes.len() {
+            if let Some(root) = sandbox.as_deref() {
+                if text[i..].starts_with(root) {
+                    out.push_str("/sandbox");
+                    i += root.len();
+                    continue;
+                }
+            }
             if bytes[i] == b'/'
                 && (text[i..].starts_with("/Users/") || text[i..].starts_with("/home/"))
             {

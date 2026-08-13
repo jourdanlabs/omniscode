@@ -2295,6 +2295,20 @@ fn terminus_scrub_text_strips_home_paths() {
 }
 
 #[test]
+fn terminus_scrub_text_rewrites_sandbox_root() {
+    unsafe {
+        std::env::set_var("TERMINUS_SANDBOX_ROOT", "/Users/sokpyeon/omnis-sandbox");
+    }
+    let got = OpenRouterProvider::terminus_scrub_text(
+        "cwd /Users/sokpyeon/omnis-sandbox/filthle and /Users/sokpyeon/chamber-soul-vault",
+    );
+    unsafe {
+        std::env::remove_var("TERMINUS_SANDBOX_ROOT");
+    }
+    assert_eq!(got, "cwd /sandbox/filthle and /workspace");
+}
+
+#[test]
 fn terminus_sanitize_request_drops_stream_options() {
     let mut request = serde_json::json!({
         "model": "plan",
