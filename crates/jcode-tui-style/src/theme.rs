@@ -42,10 +42,10 @@ pub fn ai_text() -> Color {
     rgb(220, 220, 215)
 }
 pub fn header_icon_color() -> Color {
-    rgb(120, 210, 230)
+    rgb(230, 215, 184)
 }
 pub fn header_name_color() -> Color {
-    rgb(190, 210, 235)
+    rgb(196, 164, 106)
 }
 pub fn header_session_color() -> Color {
     rgb(255, 255, 255)

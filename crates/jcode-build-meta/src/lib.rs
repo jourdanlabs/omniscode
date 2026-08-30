@@ -1,8 +1,15 @@
-//! Compile-time version metadata for jcode.
+//! Compile-time version metadata for OMNIS KEY.
 //!
 //! The build script (`build.rs`) computes git- and version-derived values and
 //! emits them via `cargo:rustc-env`. Runtime environment variables are never
 //! allowed to alter release identity in OMNIS KEY Local Integrity V1.
+//! Crate/env identifiers may still say `jcode` — that is the inherited chassis,
+//! not the product name on glass.
+
+/// Product name on glass. The inherited chassis is not this string.
+pub const PRODUCT_NAME: &str = "OMNIS KEY";
+/// Command the operator types. Not `jcode`. Not `omnis-code`.
+pub const PRODUCT_CLI: &str = "omnis-key";
 
 /// Compile-time human-readable version string, e.g. `v0.14.6-dev (abc1234)`.
 pub const VERSION: &str = env!("JCODE_VERSION");

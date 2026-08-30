@@ -348,9 +348,10 @@ fn semver_minor() -> String {
 
 #[cfg(test)]
 fn version_display_candidates() -> Vec<String> {
-    let full = format!("omnis {}", semver());
-    let core = format!("omnis {}", semver_core());
-    let minor = format!("omnis {}", semver_minor());
+    let name = jcode_build_meta::PRODUCT_NAME;
+    let full = format!("{name} {}", semver());
+    let core = format!("{name} {}", semver_core());
+    let minor = format!("{name} {}", semver_minor());
     let shortest = semver_minor();
     vec![full, core, minor, shortest]
 }
@@ -429,7 +430,7 @@ fn build_persistent_header_inner(app: &dyn TuiState, width: u16) -> Vec<Line<'st
     // followed by any remaining status badges rendered dimly.
     {
         let mut spans = vec![Span::styled(
-            "omnis".to_string(),
+            jcode_build_meta::PRODUCT_NAME.to_string(),
             Style::default().fg(header_name_color()).bold(),
         )];
         if is_canary {
@@ -486,7 +487,7 @@ fn build_persistent_header_inner(app: &dyn TuiState, width: u16) -> Vec<Line<'st
     } else if server_name.is_none() {
         lines.push(
             Line::from(Span::styled(
-                "JCode".to_string(),
+                jcode_build_meta::PRODUCT_NAME.to_string(),
                 Style::default().fg(header_name_color()),
             ))
             .alignment(align),
@@ -539,7 +540,7 @@ fn build_persistent_header_inner(app: &dyn TuiState, width: u16) -> Vec<Line<'st
         nice_model.clone(),
         // Match the info widget's model accent (pink, bold) instead of plain
         // white so the model reads as a distinct, styled element.
-        Style::default().fg(rgb(255, 150, 200)).bold(),
+        Style::default().fg(rgb(196, 164, 106)).bold(),
     ));
     if let Some(upstream) = upstream.as_deref() {
         let suffix = format!(" via {}", upstream);
@@ -1102,6 +1103,20 @@ mod tests {
             "loading session…"
         );
         assert_eq!(header_model_display_name("connected", ""), "Connected");
+    }
+
+    #[test]
+    fn standalone_header_says_omnis_key_not_jcode() {
+        let app = create_test_app();
+        let rendered = rendered_header_lines(&app, 80).join("\n");
+        assert!(
+            rendered.contains(jcode_build_meta::PRODUCT_NAME),
+            "header must name the product: {rendered}"
+        );
+        assert!(
+            !rendered.contains("JCode") && !rendered.to_ascii_lowercase().contains("jcode"),
+            "inherited chassis name must stay off glass: {rendered}"
+        );
     }
 
     #[test]

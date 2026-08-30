@@ -844,7 +844,7 @@ fn version_command_shows_identity_without_update_or_channel_advertising() {
 
     assert!(super::state_ui::handle_info_command(&mut app, "/version"));
     let content = app.display_messages().last().unwrap().content.clone();
-    assert!(content.contains("jcode client:"), "{content}");
+    assert!(content.contains("OMNIS KEY client:"), "{content}");
     assert!(content.contains("mode: remote/shared-server"), "{content}");
     assert!(content.contains("server: 🔥 blazing"), "{content}");
     assert!(

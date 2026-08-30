@@ -2,7 +2,7 @@ use super::*;
 
 // TUI /login and friends stay out-of-band for V1 integrity (CLI owns OAuth).
 // Message must be actionable — not a dead-end code dump (P1-A).
-const INHERITED_ACCOUNT_DISABLED_MESSAGE: &str = "In-TUI login is disabled in OMNIS CODE V1. Authenticate from a terminal, then restart the session:\n  omnis-code login claude\n  omnis-code login openai\n  omnis-code auth status\nThen run: omnis-code   (bare — no --provider flag once credentials exist)";
+const INHERITED_ACCOUNT_DISABLED_MESSAGE: &str = "In-TUI login is disabled in OMNIS KEY V1. Authenticate from a terminal, then restart the session:\n  omnis-key login claude\n  omnis-key login openai\n  omnis-key auth status\nThen run: omnis-key   (bare — no --provider flag once credentials exist)";
 
 fn is_inherited_auth_or_account_command(trimmed: &str) -> bool {
     matches!(
@@ -13,7 +13,7 @@ fn is_inherited_auth_or_account_command(trimmed: &str) -> bool {
 
 pub(crate) fn refuse_inherited_auth_or_account_surface(app: &mut App) {
     app.push_display_message(DisplayMessage::error(INHERITED_ACCOUNT_DISABLED_MESSAGE));
-    app.set_status_notice("Use: omnis-code login claude");
+    app.set_status_notice("Use: omnis-key login claude");
 }
 
 pub(crate) fn handle_auth_command(app: &mut App, trimmed: &str) -> bool {

@@ -1438,7 +1438,7 @@ async fn init_provider_with_options(
             crate::env::set_var("JCODE_DEFERRED_AUTH_BOOTSTRAP", "1");
             if show_init_messages {
                 output::stderr_info(
-                    "No local provider credentials yet. Login once, then bare `omnis-code` works without --provider:\n  omnis-code login claude\n  omnis-code login openai\n  omnis-code auth status",
+                    "No local provider credentials yet. Login once, then bare `omnis-key` works without --provider:\n  omnis-key login claude\n  omnis-key login openai\n  omnis-key auth status",
                 );
             }
             let multi = provider::MultiProvider::from_auth_status(auth::AuthStatus::default());

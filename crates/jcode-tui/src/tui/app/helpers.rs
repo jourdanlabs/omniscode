@@ -739,9 +739,14 @@ fn resumed_window_title(session_id: &str) -> String {
     let fallback_label = if let Some(server_info) =
         crate::registry::find_server_by_socket_sync(&crate::server::socket_path())
     {
-        format!("jcode/{} {}", server_info.name, session_label)
+        format!(
+            "{}/{} {}",
+            jcode_build_meta::PRODUCT_NAME,
+            server_info.name,
+            session_label
+        )
     } else {
-        format!("jcode {}", session_label)
+        format!("{} {}", jcode_build_meta::PRODUCT_NAME, session_label)
     };
     crate::process_title::terminal_window_title(
         icon,

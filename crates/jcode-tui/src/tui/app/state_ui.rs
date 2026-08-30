@@ -1704,7 +1704,12 @@ pub(super) fn handle_info_command(app: &mut App, trimmed: &str) -> bool {
         } else {
             ""
         };
-        let mut content = format!("jcode client: {}{}", version, is_canary);
+        let mut content = format!(
+            "{} client: {}{}",
+            jcode_build_meta::PRODUCT_NAME,
+            version,
+            is_canary
+        );
         if app.is_remote {
             content.push_str("\nmode: remote/shared-server");
             let server_label = match (&app.remote_server_icon, &app.remote_server_short_name) {

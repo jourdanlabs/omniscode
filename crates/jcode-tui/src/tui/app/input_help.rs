@@ -170,7 +170,7 @@ impl App {
                 "/tool-call-details\nShow whether the dimmed technical detail (command, path, args) renders next to the model-provided intent on tool rows.\n\n/tool-call-details on\nShow the technical detail after the intent, e.g. `bash · Run tests · $ cargo test`.\n\n/tool-call-details off\nShow only the intent on tool rows that have one. Rows without an intent still show the technical detail, and error summaries always render."
             }
             "auth" | "login" => {
-                "/login is disabled inside the TUI in OMNIS CODE V1.\nAuthenticate from a terminal:\n  omnis-code login claude\n  omnis-code login openai\n  omnis-code auth status\nThen start bare `omnis-code` (no --provider once credentials exist)."
+                "/login is disabled inside the TUI in OMNIS KEY V1.\nAuthenticate from a terminal:\n  omnis-key login claude\n  omnis-key login openai\n  omnis-key auth status\nThen start bare `omnis-key` (no --provider once credentials exist)."
             }
             "save" => {
                 "/save\nBookmark the current session so it appears at the top of /resume.\n\n/save <label>\nBookmark with a custom label for easy identification.\n\nSaved sessions are shown in a dedicated \"Saved\" section in the session picker."

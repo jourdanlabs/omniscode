@@ -124,7 +124,10 @@ pub async fn run_tui_client(
         );
     } else {
         crate::process_title::set_client_generic_title(super::selfdev::client_selfdev_requested());
-        let _ = crossterm::execute!(std::io::stdout(), crossterm::terminal::SetTitle("jcode"));
+        let _ = crossterm::execute!(
+            std::io::stdout(),
+            crossterm::terminal::SetTitle(jcode_build_meta::PRODUCT_NAME)
+        );
     }
     startup_profile::mark("terminal_title");
 

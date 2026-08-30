@@ -1536,7 +1536,7 @@ async fn run_ambient_visible() -> Result<()> {
 
     let _ = crossterm::execute!(
         std::io::stdout(),
-        crossterm::terminal::SetTitle(terminal_title("🤖 jcode ambient cycle"))
+        crossterm::terminal::SetTitle(terminal_title("OMNIS KEY ambient cycle"))
     );
 
     let result = app.run(terminal).await;

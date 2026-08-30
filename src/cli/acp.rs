@@ -921,8 +921,8 @@ fn initialize_result(params: &Value, profile: AcpProfile) -> Value {
         "protocolVersion": protocol_version,
         "agentCapabilities": agent_capabilities,
         "agentInfo": {
-            "name": "jcode",
-            "title": "Jcode",
+            "name": "omnis-key",
+            "title": "OMNIS KEY",
             "version": jcode_build_meta::pkg_version(),
         },
         "authMethods": [],

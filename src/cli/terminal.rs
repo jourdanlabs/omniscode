@@ -247,7 +247,7 @@ pub fn show_crash_resume_hint() {
 
     // First-run UX: a huge historical crash pile is noise, not a welcome.
     // Cap the count presentation and always name the resume binary as
-    // omnis-code (binary name; not the inherited chassis string).
+    // omnis-key (product command; not the inherited chassis string).
     let shown = crashed.len().min(20);
     let count_note = if crashed.len() > shown {
         format!("{}+ recent", shown)
@@ -257,7 +257,7 @@ pub fn show_crash_resume_hint() {
 
     if crashed.len() == 1 {
         let message = format!(
-            "{yellow}Session {bold}{}{reset}{yellow} crashed recently. Resume with:{reset}  omnis-code --resume {}",
+            "{yellow}Session {bold}{}{reset}{yellow} crashed recently. Resume with:{reset}  omnis-key --resume {}",
             session_label, id
         );
         eprintln!("{}", crate::output_style::terminal_text(&message));
@@ -267,15 +267,15 @@ pub fn show_crash_resume_hint() {
             count_note, session_label
         );
         eprintln!("{}", crate::output_style::terminal_text(&message));
-        eprintln!("{yellow}   Resume:{reset}  omnis-code --resume {}", id);
-        eprintln!("{yellow}   List:{reset}    omnis-code --resume");
+        eprintln!("{yellow}   Resume:{reset}  omnis-key --resume {}", id);
+        eprintln!("{yellow}   List:{reset}    omnis-key --resume");
     }
     eprintln!();
 }
 
 fn init_tui_terminal(inherited_terminal: bool) -> Result<ratatui::DefaultTerminal> {
     if !io::stdin().is_terminal() || !io::stdout().is_terminal() {
-        anyhow::bail!("jcode TUI requires an interactive terminal (stdin/stdout must be a TTY)");
+        anyhow::bail!("OMNIS KEY TUI requires an interactive terminal (stdin/stdout must be a TTY)");
     }
     if inherited_terminal {
         init_tui_terminal_resume()
